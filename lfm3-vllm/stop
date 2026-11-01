@@ -1,0 +1,7 @@
+#!/bin/bash
+# Stop the LFM3 vLLM container. The model cache volume is kept.
+set -euo pipefail
+cd "$(dirname "$0")"
+sudo docker compose stop
+sudo docker rm -f lfm3-vllm-sglang-1 >/dev/null 2>&1 || true
+sudo docker compose ps -a

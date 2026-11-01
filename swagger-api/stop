@@ -1,0 +1,6 @@
+#!/bin/bash
+# Stop the Swagger page.
+set -euo pipefail
+cd "$(dirname "$0")"
+sudo docker compose stop
+sudo docker compose ps -a

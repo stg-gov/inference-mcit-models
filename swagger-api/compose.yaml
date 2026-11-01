@@ -1,0 +1,15 @@
+services:
+  swagger:
+    image: swaggerapi/swagger-ui
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SWAGGER_JSON: /spec/openapi.yaml
+    volumes:
+      - ./openapi.yaml:/spec/openapi.yaml:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

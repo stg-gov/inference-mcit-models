@@ -1,0 +1,57 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:8000:8000"
+
+    environment:
+      # Xet leaves large blobs as *.incomplete when a CDN connection hangs.
+      # The classic downloader resumes that partial file after a timeout.
+      HF_HUB_DISABLE_XET: "1"
+      HF_HUB_ENABLE_HF_TRANSFER: "0"
+      HF_HUB_DOWNLOAD_TIMEOUT: "60"
+      HF_HUB_ETAG_TIMEOUT: "60"
+
+    volumes:
+      - model-cache:/root/.cache/huggingface
+
+    shm_size: "8gb"
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+
+    command:
+      - bakita/kiki-tafsiri-b2-4b-it
+      - --language-model-only
+      - --served-model-name
+      - kiki-tafsiri
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --dtype
+      - bfloat16
+      - --tensor-parallel-size
+      - "1"
+      - --max-model-len
+      - "4096"
+      - --gpu-memory-utilization
+      - "0.80"
+      - --max-num-seqs
+      - "8"
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+volumes:
+  model-cache:

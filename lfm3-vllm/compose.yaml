@@ -1,0 +1,191 @@
+# One L40S (GPU 1) serves several LFM3 checkpoints.
+# Start them with ./run, which brings them up one at a time.
+# Each mem-fraction-static is the share of free GPU memory that server may keep.
+# LFM3-1.7B-NVFP4 is omitted: NVFP4 needs a Blackwell GPU, and the L40S is Ada.
+
+x-sglang: &sglang
+  image: lmsysorg/sglang:dev-lfm3
+  restart: on-failure:3
+  ipc: host
+  shm_size: "8gb"
+  volumes:
+    - /home/mcit/.cache/huggingface:/root/.cache/huggingface
+  environment:
+    HF_HUB_DISABLE_XET: "1"
+    HF_HUB_ENABLE_HF_TRANSFER: "0"
+    HF_HUB_DOWNLOAD_TIMEOUT: "120"
+    HF_HUB_ETAG_TIMEOUT: "60"
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            device_ids: ["1"]
+            capabilities: [gpu]
+  entrypoint: ["sglang", "serve"]
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "3"
+
+services:
+  lfm3:
+    <<: *sglang
+    container_name: lfm3-1.7b
+    ports:
+      - "127.0.0.1:8001:8000"
+    command:
+      - LiquidAI/LFM3-1.7B
+      - --trust-remote-code
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --dtype
+      - bfloat16
+      - --tp
+      - "1"
+      - --context-length
+      - "4096"
+      - --max-running-requests
+      - "2"
+      - --mem-fraction-static
+      - "0.16"
+      - --reasoning-parser
+      - auto
+      - --tool-call-parser
+      - auto
+
+  lfm3-base:
+    <<: *sglang
+    container_name: lfm3-1.7b-base
+    ports:
+      - "127.0.0.1:8002:8000"
+    command:
+      - LiquidAI/LFM3-1.7B-Base
+      - --trust-remote-code
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --dtype
+      - bfloat16
+      - --tp
+      - "1"
+      - --context-length
+      - "4096"
+      - --max-running-requests
+      - "2"
+      - --mem-fraction-static
+      - "0.22"
+      - --reasoning-parser
+      - auto
+      - --tool-call-parser
+      - auto
+
+  lfm3-fp8:
+    <<: *sglang
+    container_name: lfm3-1.7b-fp8
+    ports:
+      - "127.0.0.1:8003:8000"
+    command:
+      - LiquidAI/LFM3-1.7B-FP8
+      - --trust-remote-code
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --tp
+      - "1"
+      - --context-length
+      - "4096"
+      - --max-running-requests
+      - "2"
+      - --mem-fraction-static
+      - "0.32"
+      - --reasoning-parser
+      - auto
+      - --tool-call-parser
+      - auto
+
+  lfm3-vl:
+    <<: *sglang
+    container_name: lfm3-vl-2b
+    ports:
+      - "127.0.0.1:8004:8000"
+    command:
+      - LiquidAI/LFM3-VL-2B
+      - --trust-remote-code
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --dtype
+      - bfloat16
+      - --tp
+      - "1"
+      - --context-length
+      - "4096"
+      - --max-running-requests
+      - "2"
+      - --mem-fraction-static
+      - "0.48"
+      - --reasoning-parser
+      - auto
+      - --tool-call-parser
+      - auto
+
+  lfm3-audio:
+    <<: *sglang
+    container_name: lfm3-audio-2b
+    ports:
+      - "127.0.0.1:8005:8000"
+    command:
+      - LiquidAI/LFM3-Audio-2B
+      - --trust-remote-code
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --dtype
+      - bfloat16
+      - --tp
+      - "1"
+      - --context-length
+      - "4096"
+      - --max-running-requests
+      - "2"
+      - --mem-fraction-static
+      - "0.66"
+      - --reasoning-parser
+      - auto
+      - --tool-call-parser
+      - auto
+
+  lfm3-omni:
+    <<: *sglang
+    container_name: lfm3-omni-2b
+    ports:
+      - "127.0.0.1:8006:8000"
+    command:
+      - LiquidAI/LFM3-Omni-2B
+      - --trust-remote-code
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --dtype
+      - bfloat16
+      - --tp
+      - "1"
+      - --context-length
+      - "4096"
+      - --max-running-requests
+      - "2"
+      - --mem-fraction-static
+      - "0.90"
+      - --reasoning-parser
+      - auto
+      - --tool-call-parser
+      - auto

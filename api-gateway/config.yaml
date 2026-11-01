@@ -1,0 +1,46 @@
+model_list:
+  - model_name: kiki-tafsiri
+    litellm_params:
+      model: openai/kiki-tafsiri
+      api_base: http://127.0.0.1:8000/v1
+      api_key: not-needed
+  - model_name: lfm3
+    litellm_params:
+      model: openai/LiquidAI/LFM3-1.7B
+      api_base: http://127.0.0.1:8001/v1
+      api_key: not-needed
+  - model_name: lfm3-1.7b-base
+    litellm_params:
+      model: openai/LiquidAI/LFM3-1.7B-Base
+      api_base: http://127.0.0.1:8002/v1
+      api_key: not-needed
+  - model_name: lfm3-1.7b-fp8
+    litellm_params:
+      model: openai/LiquidAI/LFM3-1.7B-FP8
+      api_base: http://127.0.0.1:8003/v1
+      api_key: not-needed
+  - model_name: lfm3-vl-2b
+    litellm_params:
+      model: openai/LiquidAI/LFM3-VL-2B
+      api_base: http://127.0.0.1:8004/v1
+      api_key: not-needed
+  - model_name: lfm3-audio-2b
+    litellm_params:
+      model: openai/LiquidAI/LFM3-Audio-2B
+      api_base: http://127.0.0.1:8005/v1
+      api_key: not-needed
+  - model_name: lfm3-omni-2b
+    litellm_params:
+      model: openai/LiquidAI/LFM3-Omni-2B
+      api_base: http://127.0.0.1:8006/v1
+      api_key: not-needed
+
+litellm_settings:
+  # Drop fields a backend does not accept instead of failing the request.
+  drop_params: true
+  request_timeout: 120
+  num_retries: 0
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL

@@ -1,0 +1,5 @@
+#!/bin/bash
+# Open a shell in the running Kiki container.
+set -euo pipefail
+cd "$(dirname "$0")"
+exec sudo docker compose exec vllm bash

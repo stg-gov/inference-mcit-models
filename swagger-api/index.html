@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MCIT inference API</title>
+  <link rel="stylesheet" href="ui/swagger-ui.css">
+  <style>
+    body { margin: 0; background: #f6f7f8; }
+    header {
+      padding: 22px 28px 0;
+      font-family: "Segoe UI", sans-serif;
+    }
+    h1 { margin: 0 0 6px; font-size: 22px; font-weight: 650; }
+    p { margin: 0; max-width: 760px; color: #333; line-height: 1.45; }
+    .swagger-ui .topbar { display: none; }
+    .swagger-ui .scheme-container {
+      padding: 8px 0 16px;
+      background: transparent;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MCIT inference API</h1>
+  </header>
+  <div id="swagger"></div>
+  <script src="ui/swagger-ui-bundle.js"></script>
+  <script>
+    SwaggerUIBundle({
+      url: "openapi.yaml?v=3",
+      dom_id: "#swagger",
+      deepLinking: true,
+      docExpansion: "list",
+      tryItOutEnabled: true,
+      persistAuthorization: true,
+      tagsSorter: function (a, b) {
+        var order = { Kiki: 0, LFM: 1 };
+        var left = order[a] == null ? 9 : order[a];
+        var right = order[b] == null ? 9 : order[b];
+        return left - right;
+      },
+      defaultModelsExpandDepth: -1,
+      displayRequestDuration: true,
+      presets: [SwaggerUIBundle.presets.apis]
+    });
+  </script>
+</body>
+</html>

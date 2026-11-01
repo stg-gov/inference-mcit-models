@@ -1,0 +1,8 @@
+#!/bin/bash
+# Start the API gateway in the background.
+set -euo pipefail
+cd "$(dirname "$0")"
+sudo docker compose up -d
+sudo docker compose ps
+echo "API: http://127.0.0.1:4000/v1"
+echo "Admin key: LITELLM_MASTER_KEY in $(pwd)/.env"

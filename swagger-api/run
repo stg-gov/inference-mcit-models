@@ -1,0 +1,8 @@
+#!/bin/bash
+# Start the Swagger page for the inference API.
+set -euo pipefail
+cd "$(dirname "$0")"
+sudo docker compose up -d
+sudo docker compose ps
+echo "Swagger: http://127.0.0.1:8080"
+echo "From the network: http://192.168.150.114:8080"

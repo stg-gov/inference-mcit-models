@@ -1,0 +1,373 @@
+openapi: 3.0.3
+info:
+  title: MCIT inference API
+  version: "1.0.0"
+servers:
+  - url: /
+tags:
+  - name: Kiki
+    description: Translation and chat for Kiki. A translation comes back in `translation`. A chat reply is in `choices[0].message.content`.
+  - name: LFM
+    description: One sample for each LFM model. The reply is in `choices[0].message.content`.
+security:
+  - bearerAuth: []
+paths:
+  /kiki/translate:
+    post:
+      tags: [Kiki]
+      operationId: kikiTranslate
+      summary: Translate text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranslateRequest"
+            examples:
+              short:
+                summary: Short sentence
+                value:
+                  text: Good morning.
+                  sourceLang: English
+                  targetLang: Swahili
+                  temperature: 0.5
+                  model: kiki-tafsiri-b2-4b-it
+                  backend: kiki
+              monument:
+                summary: Heroes monument
+                value:
+                  text: "The Government of Tanzania, in collaboration with the Government of South Africa, has begun the process of constructing a Heroes' Monument at the South African Heroes' Cemetery in Mazimbu, Morogoro Region. The project aims to honour the heroes' contribution and preserve their memory for present and future generations."
+                  sourceLang: English
+                  targetLang: Swahili
+                  temperature: 0.5
+                  model: kiki-tafsiri-b2-4b-it
+                  backend: kiki
+      responses:
+        "200":
+          description: The translation is in the translation field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TranslateResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /kiki/chat:
+    post:
+      tags: [Kiki]
+      operationId: kikiChat
+      summary: Chat sample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: user
+                  content: Say hello in one sentence.
+              temperature: 0.2
+              max_tokens: 128
+      responses:
+        "200":
+          description: The reply is in choices[0].message.content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /kiki/models:
+    get:
+      tags: [Kiki]
+      operationId: kikiModels
+      summary: List Kiki models
+      responses:
+        "200":
+          description: Kiki models this key can call
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /lfm/lfm3/chat:
+    post:
+      tags: [LFM]
+      operationId: lfm3Chat
+      summary: LFM3 1.7B sample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: user
+                  content: Say hello in one sentence.
+              temperature: 0.1
+              max_tokens: 128
+              chat_template_kwargs:
+                enable_thinking: false
+      responses:
+        "200":
+          description: The reply is in choices[0].message.content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /lfm/lfm3-1.7b-base/chat:
+    post:
+      tags: [LFM]
+      operationId: lfm3BaseChat
+      summary: LFM3 1.7B base sample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: user
+                  content: Say hello in one sentence.
+              temperature: 0.1
+              max_tokens: 128
+      responses:
+        "200":
+          description: The reply is in choices[0].message.content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /lfm/lfm3-1.7b-fp8/chat:
+    post:
+      tags: [LFM]
+      operationId: lfm3Fp8Chat
+      summary: LFM3 1.7B FP8 sample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: user
+                  content: Say hello in one sentence.
+              temperature: 0.1
+              max_tokens: 128
+              chat_template_kwargs:
+                enable_thinking: false
+      responses:
+        "200":
+          description: The reply is in choices[0].message.content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /lfm/lfm3-vl-2b/chat:
+    post:
+      tags: [LFM]
+      operationId: lfm3VlChat
+      summary: LFM3 VL 2B sample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: user
+                  content: Say hello in one sentence.
+              temperature: 0.1
+              max_tokens: 128
+              chat_template_kwargs:
+                enable_thinking: false
+      responses:
+        "200":
+          description: The reply is in choices[0].message.content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /lfm/lfm3-audio-2b/chat:
+    post:
+      tags: [LFM]
+      operationId: lfm3AudioChat
+      summary: LFM3 Audio 2B sample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: user
+                  content: Say hello in one sentence.
+              temperature: 0.1
+              max_tokens: 128
+      responses:
+        "200":
+          description: The reply is in choices[0].message.content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /lfm/lfm3-omni-2b/chat:
+    post:
+      tags: [LFM]
+      operationId: lfm3OmniChat
+      summary: LFM3 Omni 2B sample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: user
+                  content: Say hello in one sentence.
+              temperature: 0.1
+              max_tokens: 128
+      responses:
+        "200":
+          description: The reply is in choices[0].message.content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /lfm/models:
+    get:
+      tags: [LFM]
+      operationId: lfmModels
+      summary: List LFM models
+      responses:
+        "200":
+          description: LFM models this key can call
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Gateway virtual key, including the sk- prefix.
+  responses:
+    Unauthorized:
+      description: Missing or unknown API key
+  schemas:
+    TranslateRequest:
+      type: object
+      required: [text, sourceLang, targetLang]
+      properties:
+        text:
+          type: string
+        sourceLang:
+          type: string
+          example: English
+        targetLang:
+          type: string
+          example: Swahili
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 2
+          default: 0.5
+        model:
+          type: string
+          enum: [kiki-tafsiri-b2-4b-it, kiki-tafsiri]
+          default: kiki-tafsiri-b2-4b-it
+        backend:
+          type: string
+          enum: [kiki]
+          default: kiki
+    TranslateResponse:
+      type: object
+      properties:
+        translation:
+          type: string
+        sourceLang:
+          type: string
+        targetLang:
+          type: string
+        model:
+          type: string
+          example: kiki-tafsiri
+        backend:
+          type: string
+          example: kiki
+    ChatRequest:
+      type: object
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            required: [role, content]
+            properties:
+              role:
+                type: string
+                enum: [system, user, assistant]
+              content:
+                type: string
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 2
+        max_tokens:
+          type: integer
+          minimum: 1
+        chat_template_kwargs:
+          type: object
+          properties:
+            enable_thinking:
+              type: boolean
+    ChatResponse:
+      type: object
+      properties:
+        model:
+          type: string
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: object
+                properties:
+                  role:
+                    type: string
+                  content:
+                    type: string
+    ModelList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string

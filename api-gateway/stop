@@ -1,0 +1,6 @@
+#!/bin/bash
+# Stop the gateway. The Postgres volume is kept.
+set -euo pipefail
+cd "$(dirname "$0")"
+sudo docker compose stop
+sudo docker compose ps -a

@@ -1,0 +1,70 @@
+#!/bin/bash
+# Load the LFM3 checkpoints onto GPU 1, one at a time, then publish them on the gateway.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+services=(lfm3 lfm3-base lfm3-fp8 lfm3-vl lfm3-audio lfm3-omni)
+names=(lfm3-1.7b lfm3-1.7b-base lfm3-1.7b-fp8 lfm3-vl-2b lfm3-audio-2b lfm3-omni-2b)
+ports=(8001 8002 8003 8004 8005 8006)
+
+echo "Stopping the previous LFM server so GPU 1 can be shared."
+sudo docker rm -f lfm3-vllm-sglang-1 "${names[@]}" >/dev/null 2>&1 || true
+for _ in $(seq 1 60); do
+  used=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits -i 1 | tr -d ' ')
+  if [ "${used}" -lt 2000 ]; then
+    break
+  fi
+  sleep 2
+done
+
+mkdir -p /home/mcit/.cache/huggingface
+failed=()
+for i in "${!services[@]}"; do
+  svc="${services[$i]}"
+  name="${names[$i]}"
+  port="${ports[$i]}"
+  echo "Starting ${name} on 127.0.0.1:${port}"
+  sudo docker compose up -d --no-deps --force-recreate "${svc}"
+  ready=0
+  for _ in $(seq 1 180); do
+    if curl -sf "http://127.0.0.1:${port}/v1/models" >/dev/null; then
+      ready=1
+      break
+    fi
+    state=$(sudo docker inspect -f '{{.State.Status}} {{.RestartCount}}' "${name}" 2>/dev/null || echo missing)
+    status=${state%% *}
+    restarts=${state##* }
+    if [ "${status}" = "exited" ] && [ "${restarts}" -ge 3 ]; then
+      break
+    fi
+    sleep 5
+  done
+  if [ "${ready}" -eq 1 ]; then
+    echo "Ready: ${name}"
+  else
+    echo "Failed: ${name}"
+    sudo docker logs --tail 40 "${name}" || true
+    sudo docker update --restart=no "${name}" >/dev/null 2>&1 || true
+    sudo docker stop "${name}" >/dev/null 2>&1 || true
+    failed+=("${name}")
+  fi
+done
+
+echo "Publishing the models on the gateway."
+sudo docker compose -f /home/mcit/api-gateway/compose.yaml up -d --force-recreate --no-deps litellm
+for _ in $(seq 1 30); do
+  if curl -sf http://127.0.0.1:4000/health/liveliness >/dev/null; then
+    break
+  fi
+  sleep 2
+done
+python3 /home/mcit/api-gateway/allow-models.py
+
+echo
+if [ "${#failed[@]}" -eq 0 ]; then
+  echo "All LFM3 checkpoints are up."
+else
+  echo "These checkpoints did not stay up: ${failed[*]}"
+fi
+echo "Gateway model list: http://127.0.0.1:4000/v1/models"
+echo "Swagger: http://192.168.150.114:8080/"

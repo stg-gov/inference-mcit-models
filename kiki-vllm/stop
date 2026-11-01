@@ -1,0 +1,6 @@
+#!/bin/bash
+# Stop the Kiki vLLM container. The model cache volume is kept.
+set -euo pipefail
+cd "$(dirname "$0")"
+sudo docker compose stop
+sudo docker compose ps -a
